@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Training & Climate Impact - Interactive Science Fair</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="title-animated">🌍 AI Training & Climate Impact</h1>
+            <p class="subtitle">Understanding Energy Consumption and Carbon Emissions</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Control Panel -->
+            <section class="control-panel">
+                <div class="control-group">
+                    <button class="btn btn-start" id="startBtn">▶ Start Simulation</button>
+                    <button class="btn btn-pause" id="pauseBtn">⏸ Pause</button>
+                    <button class="btn btn-reset" id="resetBtn">🔄 Reset</button>
+                </div>
+                <div class="speed-control">
+                    <label for="speedSlider">Simulation Speed:</label>
+                    <input type="range" id="speedSlider" min="0.5" max="3" step="0.5" value="1">
+                    <span id="speedDisplay">1x</span>
+                </div>
+            </section>
+
+            <!-- Statistics Section -->
+            <section class="statistics">
+                <div class="stat-card energy-card">
+                    <h3>⚡ Energy Consumption</h3>
+                    <div class="counter-display" id="energyCounter">0.0</div>
+                    <p class="unit">Kilowatt-hours (kWh)</p>
+                    <p class="description">Energy used to train AI models</p>
+                </div>
+
+                <div class="stat-card emissions-card">
+                    <h3>💨 Carbon Emissions</h3>
+                    <div class="counter-display" id="emissionsCounter">0.0</div>
+                    <p class="unit">Metric Tons of CO₂</p>
+                    <p class="description">Greenhouse gas released</p>
+                </div>
+
+                <div class="stat-card ratio-card">
+                    <h3>📊 CO₂/kWh Ratio</h3>
+                    <div class="counter-display" id="ratioCounter">0.0</div>
+                    <p class="unit">kg CO₂ per kWh</p>
+                    <p class="description">Carbon intensity of energy</p>
+                </div>
+            </section>
+
+            <!-- Graph Section -->
+            <section class="graph-section">
+                <div class="chart-container">
+                    <h2>Real-Time Environmental Impact</h2>
+                    <canvas id="impactChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Animation Visualization -->
+            <section class="animation-section">
+                <div class="visualization-panel">
+                    <h2>Environmental Impact Visualization</h2>
+                    
+                    <!-- Data Center -->
+                    <div class="data-center">
+                        <div class="building">
+                            <p class="label">Data Center</p>
+                            <div class="heat-waves" id="heatWaves"></div>
+                        </div>
+                    </div>
+
+                    <!-- Smoke Animation -->
+                    <div class="smoke-container">
+                        <p class="label">Carbon Emission</p>
+                        <div class="smoke" id="smoke1"></div>
+                        <div class="smoke" id="smoke2"></div>
+                        <div class="smoke" id="smoke3"></div>
+                        <div class="smoke" id="smoke4"></div>
+                        <div class="smoke" id="smoke5"></div>
+                    </div>
+
+                    <!-- Temperature Rise -->
+                    <div class="temperature-section">
+                        <p class="label">Temperature Increase</p>
+                        <div class="thermometer">
+                            <div class="temp-scale"></div>
+                            <div class="mercury" id="mercury"></div>
+                            <div class="temp-value" id="tempValue">0°C</div>
+                        </div>
+                    </div>
+
+                    <!-- Melting Ice Animation -->
+                    <div class="ice-section">
+                        <p class="label">Arctic Ice Melting</p>
+                        <div class="ice-container">
+                            <div class="ice" id="ice1"></div>
+                            <div class="ice" id="ice2"></div>
+                            <div class="ice" id="ice3"></div>
+                            <div class="water-level" id="waterLevel"></div>
+                        </div>
+                    </div>
+
+                    <!-- Warning Indicator -->
+                    <div class="warning-section">
+                        <p class="label">Climate Warning Level</p>
+                        <div class="warning-bars">
+                            <div class="bar" id="warningBar1">
+                                <span>Low</span>
+                            </div>
+                            <div class="bar" id="warningBar2">
+                                <span>Moderate</span>
+                            </div>
+                            <div class="bar" id="warningBar3">
+                                <span>High</span>
+                            </div>
+                            <div class="bar" id="warningBar4">
+                                <span>Critical</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Information Panel -->
+            <section class="info-section">
+                <h2>🔬 Scientific Facts</h2>
+                <div class="facts-grid">
+                    <div class="fact-box">
+                        <h4>💡 Data Centers</h4>
+                        <p>Modern data centers consume massive amounts of electricity to power servers and keep them cool. They are responsible for about 1-2% of global electricity usage.</p>
+                    </div>
+                    <div class="fact-box">
+                        <h4>🤖 AI Model Training</h4>
+                        <p>Training large AI models requires billions of computational operations, consuming thousands of megawatt-hours of electricity. Larger models require exponentially more energy.</p>
+                    </div>
+                    <div class="fact-box">
+                        <h4>🌱 Carbon Footprint</h4>
+                        <p>The carbon footprint of AI training depends on the energy source. Renewable energy has a lower carbon intensity (~0.05 kg CO₂/kWh) versus fossil fuels (~0.5 kg CO₂/kWh).</p>
+                    </div>
+                    <div class="fact-box">
+                        <h4>♻️ Sustainability</h4>
+                        <p>Using renewable energy sources like wind and solar power can significantly reduce the environmental impact of AI training and data centers.</p>
+                    </div>
+                    <div class="fact-box">
+                        <h4>🌍 Greenhouse Gases</h4>
+                        <p>CO₂ is a major greenhouse gas that traps heat in the atmosphere, contributing to global warming and climate change. Every action has an environmental cost.</p>
+                    </div>
+                    <div class="fact-box">
+                        <h4>⚖️ Comparison</h4>
+                        <p>Training one large AI model can produce emissions equivalent to the annual carbon footprint of several human lifetimes. Efficiency improvements are crucial.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Interactive Science Fair Project • Educational Simulation • May 2026</p>
+            <p>Learning about the environmental impact of artificial intelligence and data centers</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

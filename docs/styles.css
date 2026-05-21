@@ -3,16 +3,16 @@
    =========================== */
 
 :root {
-    --primary-color: #00d4ff;
-    --secondary-color: #ff6b6b;
-    --tertiary-color: #51cf66;
+    --primary-color: #aef1ff;
+    --secondary-color: #e5b1b1;
+    --tertiary-color: #a6d9af;
     --dark-bg: #0a0e27;
     --card-bg: #1a1f3a;
     --text-primary: #ffffff;
-    --text-secondary: #b0b8d4;
-    --accent-orange: #ff8c42;
-    --accent-red: #ff4444;
-    --accent-green: #44ff44;
+    --text-secondary: #c8cfe8;
+    --accent-orange: #ffc49f;
+    --accent-red: #f7b6b6;
+    --accent-green: #bee8be;
     --shadow: 0 8px 32px rgba(0, 212, 255, 0.1);
 }
 
@@ -51,10 +51,10 @@ body {
 
 @keyframes headerGlow {
     0%, 100% {
-        box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        box-shadow: 0 0 20px rgba(120, 174, 185, 0.3);
     }
     50% {
-        box-shadow: 0 0 40px rgba(0, 212, 255, 0.6);
+        box-shadow: 0 0 40px rgba(71, 138, 151, 0.6);
     }
 }
 
@@ -89,6 +89,79 @@ body {
     from {
         opacity: 0;
         transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.project-author {
+    font-size: 1em;
+    color: rgba(190, 232, 190, 1);
+    margin-top: 12px;
+    letter-spacing: 0.02em;
+    font-weight: 600;
+}
+
+.animated-facts-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.animated-fact {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(174, 241, 255, 0.2);
+    padding: 10px 16px;
+    border-radius: 999px;
+    font-size: 0.95em;
+    color: var(--text-primary);
+    animation: floatLabel 4.5s ease-in-out infinite;
+}
+
+.animated-fact:nth-child(odd) {
+    animation-delay: 0.2s;
+}
+
+.animated-fact:nth-child(even) {
+    animation-delay: 0.8s;
+}
+
+.fact-ticker {
+    margin: 24px auto 0 auto;
+    max-width: 780px;
+    text-align: center;
+    color: var(--text-primary);
+    font-size: 1.05em;
+    padding: 14px 18px;
+    border-radius: 16px;
+    border: 1px dashed rgba(174, 241, 255, 0.4);
+    background: rgba(255, 255, 255, 0.03);
+    animation: fadeInText 0.8s ease;
+}
+
+.fade-in {
+    animation: fadeInText 0.8s ease;
+}
+
+@keyframes floatLabel {
+    0%, 100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    50% {
+        transform: translateY(-5px);
+        opacity: 0.85;
+    }
+}
+
+@keyframes fadeInText {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
     }
     to {
         opacity: 1;
@@ -157,7 +230,7 @@ body {
 
 .btn-reset:hover {
     transform: scale(1.05);
-    box-shadow: 0 0 20px rgba(255, 68, 68, 0.5);
+    box-shadow: 0 0 20px rgba(150, 77, 77, 0.5);
 }
 
 .speed-control {
@@ -294,6 +367,69 @@ body {
 
 canvas {
     max-width: 100%;
+}
+
+.comparison-section {
+    margin-bottom: 40px;
+    background: rgba(0, 212, 255, 0.05);
+    padding: 30px;
+    border-radius: 15px;
+    border: 2px solid rgba(174, 241, 255, 0.25);
+    box-shadow: var(--shadow);
+}
+
+.comparison-section h2 {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    font-size: 1.8em;
+}
+
+.comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.comparison-card {
+    background: linear-gradient(135deg, rgba(10, 14, 39, 0.95), rgba(26, 31, 58, 0.95));
+    padding: 25px;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.comparison-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(0, 212, 255, 0.35);
+}
+
+.comparison-card h3 {
+    color: var(--secondary-color);
+    margin-bottom: 12px;
+    font-size: 1.25em;
+}
+
+.comparison-number {
+    font-size: 2em;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #ffb86c;
+}
+
+.comparison-note {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.comparison-summary {
+    margin-top: 20px;
+    color: var(--text-secondary);
+    font-size: 1em;
+    text-align: center;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* ===========================
@@ -669,6 +805,98 @@ canvas {
     margin-bottom: 40px;
 }
 
+.detail-message {
+    color: var(--text-secondary);
+    font-size: 1.05em;
+    margin-bottom: 20px;
+    line-height: 1.6;
+    text-align: center;
+    max-width: 920px;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px dashed rgba(174, 241, 255, 0.3);
+    padding: 18px 22px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.renewables-section {
+    background: var(--card-bg);
+    padding: 30px;
+    border-radius: 15px;
+    border: 2px solid var(--primary-color);
+    box-shadow: var(--shadow);
+    margin-bottom: 40px;
+}
+
+.renewables-section h2 {
+    color: var(--primary-color);
+    margin-bottom: 25px;
+    font-size: 1.8em;
+}
+
+.solutions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+}
+
+.solution-card {
+    background: rgba(0, 212, 255, 0.08);
+    border: 1px solid rgba(174, 241, 255, 0.15);
+    border-radius: 16px;
+    padding: 20px;
+    min-height: 160px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.solution-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 212, 255, 0.15);
+}
+
+.solution-card h3 {
+    color: var(--tertiary-color);
+    margin-bottom: 12px;
+    font-size: 1.1em;
+}
+
+.solution-card p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.source-section {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 20px 25px;
+    border-radius: 15px;
+    border: 1px solid rgba(174, 241, 255, 0.18);
+    text-align: center;
+    color: var(--text-secondary);
+    margin-bottom: 40px;
+}
+
+.source-section h2 {
+    color: var(--primary-color);
+    margin-bottom: 8px;
+    font-size: 1.6em;
+}
+
+.source-section p {
+    max-width: 900px;
+    margin: 0 auto;
+    line-height: 1.7;
+}
+
+.footer .reflection {
+    margin-bottom: 12px;
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* ===========================
+   Responsive Design
+   =========================== */
 .info-section h2 {
     color: var(--primary-color);
     margin-bottom: 25px;

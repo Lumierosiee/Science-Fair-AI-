@@ -33,6 +33,16 @@ const chartData = {
     emissionsData: []
 };
 
+const rotatingFactMessages = [
+    'Carbon Emissions Increasing',
+    'Data Center Energy Usage Rising',
+    'Arctic Ice Melting',
+    'Renewable Energy Reduces CO₂',
+    'Climate Change Affects Wildlife'
+];
+
+let factIndex = 0;
+
 // ===========================
 // Chart Initialization
 // ===========================
@@ -163,7 +173,9 @@ function updateCounters() {
         energyDisplay.style.animation = 'pulse 0.3s ease';
         emissionsDisplay.style.animation = 'pulse 0.3s ease';
     }, 10);
-}
+
+    updateFactDescription();
+} 
 
 function updateChart() {
     const timeLabel = `${simulationState.time}s`;
@@ -204,6 +216,36 @@ function updateHeatWaves() {
         wave.style.animationDelay = `${i * 0.4}s`;
         heatWavesContainer.appendChild(wave);
     }
+}
+
+function initializeFactTicker() {
+    const factTicker = document.getElementById('factTicker');
+    if (!factTicker) return;
+
+    factTicker.textContent = rotatingFactMessages[factIndex];
+    setInterval(() => {
+        factIndex = (factIndex + 1) % rotatingFactMessages.length;
+        factTicker.classList.remove('fade-in');
+        void factTicker.offsetWidth;
+        factTicker.textContent = rotatingFactMessages[factIndex];
+        factTicker.classList.add('fade-in');
+    }, 3600);
+}
+
+function updateFactDescription() {
+    const detailMessage = document.getElementById('detailMessage');
+    if (!detailMessage) return;
+
+    const emissionValue = simulationState.emissions;
+    let message = 'AI training requires massive data centers filled with GPUs and servers that consume huge amounts of electricity.';
+
+    if (emissionValue >= 0.005 && emissionValue < 0.015) {
+        message = 'Fossil fuel energy sources increase carbon emissions, while renewable energy sources like solar and wind reduce environmental damage.';
+    } else if (emissionValue >= 0.015) {
+        message = 'Training one large AI model can produce emissions equal to around 8–9 average cars over their lifetimes.';
+    }
+
+    detailMessage.textContent = message;
 }
 
 function updateTemperature() {
@@ -360,6 +402,7 @@ function updateSimulationSpeed() {
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize chart
     initializeChart();
+    initializeFactTicker();
 
     // Button event listeners
     document.getElementById('startBtn').addEventListener('click', startSimulation);
@@ -392,19 +435,6 @@ document.addEventListener('keydown', (e) => {
         resetSimulation();
     }
 });
-
-// Auto-update description based on emissions
-function updateFactDescription() {
-    const emissionValue = simulationState.emissions;
-    
-    if (emissionValue > 0 && emissionValue < 0.005) {
-        // Show energy fact
-    } else if (emissionValue >= 0.005 && emissionValue < 0.015) {
-        // Show carbon footprint fact
-    } else if (emissionValue >= 0.015) {
-        // Show sustainability fact
-    }
-}
 
 // Performance optimization: Update chart less frequently at higher speeds
 setInterval(() => {

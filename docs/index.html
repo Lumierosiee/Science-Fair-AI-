@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Training & Climate Impact - Interactive Science Fair</title>
+    <title>The Impact Of Energy Cost On AI Training Models</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -11,8 +11,17 @@
     <div class="container">
         <!-- Header -->
         <header class="header">
-            <h1 class="title-animated">🌍 AI Training & Climate Impact</h1>
+            <h1 class="title-animated">The Impact Of Energy Cost On AI Training Models</h1>
             <p class="subtitle">Understanding Energy Consumption and Carbon Emissions</p>
+            <p class="project-author">Interactive Science Fair Project by Annabelle Wilva Eudora – Grade 8</p>
+            <div class="animated-facts-row">
+                <span class="animated-fact">Carbon Emissions Increasing</span>
+                <span class="animated-fact">Data Center Energy Usage Rising</span>
+                <span class="animated-fact">Arctic Ice Melting</span>
+                <span class="animated-fact">Renewable Energy Reduces CO₂</span>
+                <span class="animated-fact">Climate Change Affects Wildlife</span>
+            </div>
+            <div class="fact-ticker" id="factTicker">Carbon Emissions Increasing</div>
         </header>
 
         <!-- Main Content -->
@@ -61,6 +70,23 @@
                     <h2>Real-Time Environmental Impact</h2>
                     <canvas id="impactChart"></canvas>
                 </div>
+            </section>
+
+            <section class="comparison-section">
+                <h2>🧪 Emissions Comparison</h2>
+                <div class="comparison-grid">
+                    <div class="comparison-card gpt-card">
+                        <h3>GPT-3 Training</h3>
+                        <p class="comparison-number">≈ 515 Metric Tons CO₂</p>
+                        <p class="comparison-note">This training footprint equals about 8–9 average cars over their entire lifetimes.</p>
+                    </div>
+                    <div class="comparison-card car-card">
+                        <h3>Average Car Lifetime</h3>
+                        <p class="comparison-number">≈ 55 Metric Tons CO₂</p>
+                        <p class="comparison-note">A typical car produces this much CO₂ during use and maintenance over decades.</p>
+                    </div>
+                </div>
+                <p class="comparison-summary">Training one large AI model can release roughly the same amount of carbon as nine cars produce during their full lifetime.</p>
             </section>
 
             <!-- Animation Visualization -->
@@ -131,6 +157,7 @@
             <!-- Information Panel -->
             <section class="info-section">
                 <h2>🔬 Scientific Facts</h2>
+                <p class="detail-message" id="detailMessage">AI training requires massive data centers filled with GPUs and servers that consume huge amounts of electricity.</p>
                 <div class="facts-grid">
                     <div class="fact-box">
                         <h4>💡 Data Centers</h4>
@@ -142,7 +169,7 @@
                     </div>
                     <div class="fact-box">
                         <h4>🌱 Carbon Footprint</h4>
-                        <p>The carbon footprint of AI training depends on the energy source. Renewable energy has a lower carbon intensity (~0.05 kg CO₂/kWh) versus fossil fuels (~0.5 kg CO₂/kWh).</p>
+                        <p>Training GPT-3 may create about 515 metric tons of CO₂, while an average car produces around 55 metric tons over its lifetime.</p>
                     </div>
                     <div class="fact-box">
                         <h4>♻️ Sustainability</h4>
@@ -150,20 +177,52 @@
                     </div>
                     <div class="fact-box">
                         <h4>🌍 Greenhouse Gases</h4>
-                        <p>CO₂ is a major greenhouse gas that traps heat in the atmosphere, contributing to global warming and climate change. Every action has an environmental cost.</p>
+                        <p>CO₂ and other gases trap heat in the atmosphere, causing global warming, melting ice, and shifting weather patterns worldwide.</p>
                     </div>
                     <div class="fact-box">
-                        <h4>⚖️ Comparison</h4>
-                        <p>Training one large AI model can produce emissions equivalent to the annual carbon footprint of several human lifetimes. Efficiency improvements are crucial.</p>
+                        <h4>🐻 Wildlife & Ecosystems</h4>
+                        <p>Melting Arctic ice causes polar bear habitat loss, ecosystem disruption, and food chain imbalance across many regions.</p>
                     </div>
                 </div>
+            </section>
+
+            <section class="renewables-section">
+                <h2>🌞 Renewable Energy Solutions</h2>
+                <div class="solutions-grid">
+                    <div class="solution-card">
+                        <h3>Solar-powered data centers</h3>
+                        <p>Solar arrays can power servers and cooling systems with clean, renewable energy.</p>
+                    </div>
+                    <div class="solution-card">
+                        <h3>Wind energy</h3>
+                        <p>Wind farms generate low-carbon electricity to reduce the overall footprint of AI training.</p>
+                    </div>
+                    <div class="solution-card">
+                        <h3>Energy-efficient AI systems</h3>
+                        <p>Smarter algorithms and optimized hardware help lower the energy needed to train models.</p>
+                    </div>
+                    <div class="solution-card">
+                        <h3>Reduce unnecessary energy waste</h3>
+                        <p>Conserving energy with server sharing and scheduling reduces total emissions.</p>
+                    </div>
+                    <div class="solution-card">
+                        <h3>Sustainable computing systems</h3>
+                        <p>Designing software and hardware for efficiency helps protect ecosystems and natural resources.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="source-section">
+                <h2>📚 MLA Sources</h2>
+                <p>Climate Impact Partners • EPA • WWF • Conservation International • Eurelectric • MIT Technology Review • Columbia Climate School</p>
             </section>
         </main>
 
         <!-- Footer -->
         <footer class="footer">
+            <p class="reflection">Technology and environmental protection should work together. AI can continue to develop while using cleaner and more sustainable energy sources for the future.</p>
             <p>Interactive Science Fair Project • Educational Simulation • May 2026</p>
-            <p>Learning about the environmental impact of artificial intelligence and data centers</p>
+            <p>Learning about the environmental impact of artificial intelligence, data centers, and sustainable energy.</p>
         </footer>
     </div>
 

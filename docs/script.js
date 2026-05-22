@@ -48,9 +48,26 @@ let factIndex = 0;
 // ===========================
 
 function initializeChart() {
-    const ctx = document.getElementById('impactChart').getContext('2d');
-    
-    impactChart = new Chart(ctx, {
+    // Wait for Chart.js to be available and for the canvas to exist.
+    if (typeof Chart === 'undefined') {
+        // Retry a few times if the library hasn't loaded yet.
+        let retries = 0;
+        const retryInit = () => {
+            retries++;
+            if (typeof Chart !== 'undefined') return initializeChart();
+            if (retries < 10) setTimeout(retryInit, 500);
+        };
+        retryInit();
+        return;
+    }
+
+    const canvas = document.getElementById('impactChart');
+    if (!canvas) return;
+    const ctx = canvas.getContext && canvas.getContext('2d');
+    if (!ctx) return;
+
+    try {
+        impactChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: chartData.labels,

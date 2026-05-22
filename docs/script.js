@@ -25,8 +25,13 @@ const energyRate = 5;
 // Fossil fuels: 0.8 kg CO2/kWh
 const carbonIntensity = 0.4; // kg CO2 per kWh
 
-const MAX_ENERGY_KWH = 1287000;
-const MAX_EMISSIONS_TONS = 514.8;
+// Chart instance
+let impactChart = null;
+const chartData = {
+    labels: [],
+    energyData: [],
+    emissionsData: []
+};
 
 const rotatingFactMessages = [
     'Carbon Emissions Increasing',
@@ -37,20 +42,6 @@ const rotatingFactMessages = [
 ];
 
 let factIndex = 0;
-
-// Minimal chart/data placeholders for docs version
-let chartData = { labels: [], energyData: [], emissionsData: [] };
-let impactChart = null;
-function updateChart() {
-    // light-weight: keep arrays bounded
-    const t = Math.floor(simulationState.time);
-    if (chartData.labels.length === 0 || chartData.labels[chartData.labels.length - 1] !== t) {
-        chartData.labels.push(t);
-        chartData.energyData.push(simulationState.energy);
-        chartData.emissionsData.push(simulationState.emissions);
-        if (chartData.labels.length > 120) { chartData.labels.shift(); chartData.energyData.shift(); chartData.emissionsData.shift(); }
-    }
-}
 
 // ===========================
 // Chart Initialization
@@ -186,6 +177,25 @@ function updateCounters() {
     updateFactDescription();
 } 
 
+function updateChart() {
+    const timeLabel = `${simulationState.time}s`;
+    
+    chartData.labels.push(timeLabel);
+    chartData.energyData.push(simulationState.energy);
+    chartData.emissionsData.push(simulationState.emissions);
+
+    // Keep only last 30 data points for performance
+    if (chartData.labels.length > 30) {
+        chartData.labels.shift();
+        chartData.energyData.shift();
+        chartData.emissionsData.shift();
+    }
+
+    if (impactChart) {
+        impactChart.update('none'); // Update without animation
+    }
+}
+
 // ===========================
 // Animation Functions
 // ===========================
@@ -298,12 +308,12 @@ function simulationTick() {
         return;
     }
 
-    // Increase energy consumption and cap at the maximum AI training value
+    // Increase energy consumption
     const deltaTime = 0.016 * simulationSpeed; // ~60fps
-    simulationState.energy = Math.min(simulationState.energy + energyRate * deltaTime, MAX_ENERGY_KWH);
-
-    // Calculate emissions (metric tons CO2) and cap at the expected AI training total
-    simulationState.emissions = Math.min((simulationState.energy * carbonIntensity) / 1000, MAX_EMISSIONS_TONS);
+    simulationState.energy += energyRate * deltaTime;
+    
+    // Calculate emissions (metric tons CO2)
+    simulationState.emissions = (simulationState.energy * carbonIntensity) / 1000;
 
     // Increment time
     simulationState.time += deltaTime;
@@ -312,10 +322,9 @@ function simulationTick() {
     updateCounters();
     updateWarningLevel();
 
-    // Update chart every 1 second
-    if (Math.floor(simulationState.time) % 1 === 0 && simulationState.time % 1 < 0.016 * simulationSpeed) {
-        updateChart();
-    }
+    // Ensure chart updates in real time while simulation runs
+    // (Call every tick so the visual graph follows the numeric counters)
+    updateChart();
 
     animationFrameId = requestAnimationFrame(simulationTick);
 }
@@ -353,6 +362,10 @@ function resetSimulation() {
     chartData.energyData = [];
     chartData.emissionsData = [];
 
+    if (impactChart) {
+        impactChart.update();
+    }
+
     updateCounters();
     updateWarningLevel();
 
@@ -387,6 +400,7 @@ function updateSimulationSpeed() {
 
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize chart
+    initializeChart();
     initializeFactTicker();
 
     // Button event listeners
@@ -421,4 +435,9 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-
+// Performance optimization: Update chart less frequently at higher speeds
+setInterval(() => {
+    if (simulationState.isRunning && simulationSpeed <= 1) {
+        updateChart();
+    }
+}, 1000);

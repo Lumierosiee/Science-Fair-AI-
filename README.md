@@ -1,6 +1,6 @@
-# 🌍 AI Training & Climate Impact - Interactive Science Fair Project
+# 🌍 AI Training & Climate Impact
 
-An educational, interactive web application that visualizes the environmental impact of training large AI models, including energy consumption, carbon emissions, and their effects on climate change.
+The environmental impact of training large AI models, including energy consumption, carbon emissions, and their effects on climate change.
 
 ## 📋 Project Overview
 

@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Impact Of Energy Cost On AI Training Models</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -13,7 +12,7 @@
         <header class="header">
             <h1 class="title-animated">The Impact Of Energy Cost On AI Training Models</h1>
             <p class="subtitle">Understanding Energy Consumption and Carbon Emissions</p>
-            <p class="project-author"> Created by Annabelle Wilva Eudora – Grade 8</p>
+            <p class="project-author">Interactive Science Fair Project by Annabelle Wilva Eudora – Grade 8</p>
             <div class="animated-facts-row">
                 <span class="animated-fact">Carbon Emissions Increasing</span>
                 <span class="animated-fact">Data Center Energy Usage Rising</span>
@@ -37,102 +36,6 @@
                     <label for="speedSlider">Simulation Speed:</label>
                     <input type="range" id="speedSlider" min="0.5" max="3" step="0.5" value="1">
                     <span id="speedDisplay">1x</span>
-                </div>
-            </section>
-
-            <!-- Live Graph -->
-            <section class="graph-section">
-                <h2>Live Energy & Emissions Graph</h2>
-                <div class="chart-container">
-                    <canvas id="impactChart" aria-label="Live energy and emissions chart" role="img"></canvas>
-                </div>
-            </section>
-
-            <!-- Environmental Visualization -->
-            <section class="visualization-section">
-                <h2>🌡️ Environmental Impact Visualization</h2>
-                <div class="visual-grid">
-                    <div class="data-center-container">
-                        <div class="server-rack">
-                            <!-- Server rack with stacked servers -->
-                            <div class="server-row">
-                                <div class="server"></div>
-                                <div class="server-lights">
-                                    <div class="led-light led-green"></div>
-                                    <div class="led-light led-blue"></div>
-                                </div>
-                            </div>
-                            <div class="server-row">
-                                <div class="server"></div>
-                                <div class="server-lights">
-                                    <div class="led-light led-green"></div>
-                                    <div class="led-light led-blue"></div>
-                                </div>
-                            </div>
-                            <div class="server-row">
-                                <div class="server"></div>
-                                <div class="server-lights">
-                                    <div class="led-light led-green"></div>
-                                    <div class="led-light led-blue"></div>
-                                </div>
-                            </div>
-                            <div class="server-row">
-                                <div class="server"></div>
-                                <div class="server-lights">
-                                    <div class="led-light led-green"></div>
-                                    <div class="led-light led-blue"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="heatWaves" class="heat-waves"></div>
-                        <div class="smoke-container" aria-hidden="true">
-                            <div class="smoke"></div>
-                            <div class="smoke"></div>
-                            <div class="smoke"></div>
-                            <div class="smoke"></div>
-                            <div class="smoke"></div>
-                        </div>
-                    </div>
-
-                    <div class="temperature-section">
-                        <!-- Y-axis labels on LEFT side -->
-                        <div class="temp-labels-left">
-                            <div class="temp-label">5°C</div>
-                            <div class="temp-label">4°C</div>
-                            <div class="temp-label">3°C</div>
-                            <div class="temp-label">2°C</div>
-                            <div class="temp-label">1°C</div>
-                            <div class="temp-label">0°C</div>
-                        </div>
-                        
-                        <!-- Thermometer Glass Container -->
-                        <div class="thermometer-container">
-                            <div class="thermometer-glass">
-                                <div id="mercury" class="mercury-fill"></div>
-                            </div>
-                        </div>
-                        
-                        <!-- Temperature Display Below -->
-                        <div id="tempValue" class="temp-value-display">0.00°C</div>
-                    </div>
-
-                    <div class="ice-section">
-                        <div class="ice-container" aria-hidden="true">
-                            <div class="ice"></div>
-                            <div class="ice"></div>
-                            <div class="ice"></div>
-                            <div id="waterLevel" class="water-level"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="warning-section">
-                    <div class="warning-bars">
-                        <div id="warningBar1" class="bar"><span>Safe</span></div>
-                        <div id="warningBar2" class="bar"><span>Watch</span></div>
-                        <div id="warningBar3" class="bar"><span>Warning</span></div>
-                        <div id="warningBar4" class="bar"><span>Critical</span></div>
-                    </div>
                 </div>
             </section>
 
@@ -209,6 +112,74 @@
                 </div>
             </section>
 
+            <!-- Environmental Impact Visualization -->
+            <section class="visualization-section" id="visualization">
+                <h2>🌐 Environmental Impact Visualization</h2>
+                <div class="visual-grid">
+                    <div class="data-center-panel">
+                        <h3>Data Center</h3>
+                        <div class="data-center">
+                            <div class="building building-1">
+                                <div class="windows"></div>
+                                <div class="fan" aria-hidden="true"></div>
+                            </div>
+                            <div class="building building-2">
+                                <div class="windows"></div>
+                                <div class="fan" aria-hidden="true"></div>
+                            </div>
+                            <div id="electricLines" class="electric-lines" aria-hidden="true"></div>
+                            <div id="heatWaves" class="heat-waves" aria-hidden="true"></div>
+                            <div id="smokeParticles" class="smoke-particles" aria-hidden="true"></div>
+                        </div>
+
+                        <div class="temp-and-warning">
+                            <div class="temperature-panel">
+                                <h4>Temperature Increase</h4>
+                                <div class="thermometer">
+                                    <div class="mercury-rail">
+                                        <div id="mercury" class="mercury"></div>
+                                    </div>
+                                    <div class="temp-readout">
+                                        <span id="tempValue">0.00°C</span>
+                                        <div class="temp-glow" id="tempGlow"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="warning-panel">
+                                <h4>Climate Warning Level</h4>
+                                <div class="warning-meter" id="warningMeter">
+                                    <div class="warning-labels">
+                                        <span>LOW</span><span>MODERATE</span><span>HIGH</span><span>CRITICAL</span>
+                                    </div>
+                                    <div class="warning-track">
+                                        <div id="warningProgress" class="warning-progress"></div>
+                                        <div id="warningMarker" class="warning-marker" aria-hidden="true"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="arctic-panel">
+                        <h3>Arctic Ice Melting</h3>
+                        <div class="ice-scene">
+                            <div id="waterLevel" class="water-level"></div>
+                            <div class="ice-blocks">
+                                <div class="ice ice-1"></div>
+                                <div class="ice ice-2"></div>
+                                <div class="ice ice-3"></div>
+                            </div>
+                            <div id="polarBear" class="polar-bear" aria-hidden="true"></div>
+                            <div class="shoreline-trees">
+                                <div class="tree tree-1"></div>
+                                <div class="tree tree-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <section class="renewables-section">
                 <h2>🌞 Renewable Energy Solutions</h2>
                 <div class="solutions-grid">
@@ -244,7 +215,7 @@
         <!-- Footer -->
         <footer class="footer">
             <p class="reflection">Technology and environmental protection should work together. AI can continue to develop while using cleaner and more sustainable energy sources for the future.</p>
-            <p>Science Fair Project • May 2026</p>
+            <p>Educational Simulation • May 2026</p>
             <p>Learning about the environmental impact of artificial intelligence, data centers, and sustainable energy.</p>
         </footer>
     </div>

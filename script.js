@@ -25,13 +25,8 @@ const energyRate = 5;
 // Fossil fuels: 0.8 kg CO2/kWh
 const carbonIntensity = 0.4; // kg CO2 per kWh
 
-// Chart instance
-let impactChart = null;
-const chartData = {
-    labels: [],
-    energyData: [],
-    emissionsData: []
-};
+const MAX_ENERGY_KWH = 1287000;
+const MAX_EMISSIONS_TONS = 514.8;
 
 const rotatingFactMessages = [
     'Carbon Emissions Increasing',
@@ -42,6 +37,33 @@ const rotatingFactMessages = [
 ];
 
 let factIndex = 0;
+
+// Minimal chart/data placeholders for docs version
+let chartData = { labels: [], energyData: [], emissionsData: [] };
+let impactChart = null;
+function updateChart() {
+    // light-weight: keep arrays bounded
+    const t = Math.floor(simulationState.time);
+    if (chartData.labels.length === 0 || chartData.labels[chartData.labels.length - 1] !== t) {
+        chartData.labels.push(t);
+        chartData.energyData.push(simulationState.energy);
+        chartData.emissionsData.push(simulationState.emissions);
+        if (chartData.labels.length > 120) { chartData.labels.shift(); chartData.energyData.shift(); chartData.emissionsData.shift(); }
+    }
+    // If Chart.js is initialized, update the chart display
+    if (impactChart) {
+        try {
+            impactChart.data.labels = chartData.labels.slice();
+            if (impactChart.data.datasets && impactChart.data.datasets.length >= 2) {
+                impactChart.data.datasets[0].data = chartData.energyData.slice();
+                impactChart.data.datasets[1].data = chartData.emissionsData.slice();
+            }
+            impactChart.update('none');
+        } catch (e) {
+            // ignore chart update errors to avoid breaking simulation
+        }
+    }
+}
 
 // ===========================
 // Chart Initialization
@@ -177,32 +199,13 @@ function updateCounters() {
     updateFactDescription();
 } 
 
-function updateChart() {
-    const timeLabel = `${simulationState.time}s`;
-    
-    chartData.labels.push(timeLabel);
-    chartData.energyData.push(simulationState.energy);
-    chartData.emissionsData.push(simulationState.emissions);
-
-    // Keep only last 30 data points for performance
-    if (chartData.labels.length > 30) {
-        chartData.labels.shift();
-        chartData.energyData.shift();
-        chartData.emissionsData.shift();
-    }
-
-    if (impactChart) {
-        impactChart.update('none'); // Update without animation
-    }
-}
-
 // ===========================
 // Animation Functions
 // ===========================
 
 function updateHeatWaves() {
     const heatWavesContainer = document.getElementById('heatWaves');
-    const dataCenter = document.querySelector('.building');
+    if (!heatWavesContainer) return;
     
     // Remove old heat waves
     heatWavesContainer.innerHTML = '';
@@ -251,6 +254,7 @@ function updateFactDescription() {
 function updateTemperature() {
     const mercury = document.getElementById('mercury');
     const tempValue = document.getElementById('tempValue');
+    if (!mercury || !tempValue) return;
     
     // Temperature increases with emissions
     // 1 metric ton CO2 = 0.05°C rise (simplified model)
@@ -265,6 +269,7 @@ function updateTemperature() {
 
 function updateWaterLevel() {
     const waterLevel = document.getElementById('waterLevel');
+    if (!waterLevel) return;
     
     // Water level rises with temperature (melting ice)
     // 1°C = 2% water level rise (simplified model)
@@ -285,9 +290,10 @@ function updateWarningLevel() {
 
     simulationState.warningLevel = newLevel;
 
-    // Update warning bars
+    // Update warning bars (guard DOM access)
     for (let i = 1; i <= 4; i++) {
         const bar = document.getElementById(`warningBar${i}`);
+        if (!bar) continue;
         if (i <= newLevel) {
             bar.classList.add('active');
         } else {
@@ -306,22 +312,29 @@ function simulationTick() {
         return;
     }
 
-    // Increase energy consumption
+    // Increase energy consumption and cap at the maximum AI training value
     const deltaTime = 0.016 * simulationSpeed; // ~60fps
-    simulationState.energy += energyRate * deltaTime;
-    
-    // Calculate emissions (metric tons CO2)
-    simulationState.emissions = (simulationState.energy * carbonIntensity) / 1000;
+    simulationState.energy = Math.min(simulationState.energy + energyRate * deltaTime, MAX_ENERGY_KWH);
+
+    // Calculate emissions (metric tons CO2) and cap at the expected AI training total
+    simulationState.emissions = Math.min((simulationState.energy * carbonIntensity) / 1000, MAX_EMISSIONS_TONS);
 
     // Increment time
     simulationState.time += deltaTime;
 
     // Update all UI elements
     updateCounters();
-    updateTemperature();
-    updateWaterLevel();
     updateWarningLevel();
-    updateHeatWaves();
+
+    // Update visualizations if present
+    try {
+        updateHeatWaves();
+        updateTemperature();
+        updateWaterLevel();
+    } catch (e) {
+        // Defensive: do not break the loop if visuals are missing
+        // console.warn('Visualization update skipped:', e);
+    }
 
     // Update chart every 1 second
     if (Math.floor(simulationState.time) % 1 === 0 && simulationState.time % 1 < 0.016 * simulationSpeed) {
@@ -364,15 +377,8 @@ function resetSimulation() {
     chartData.energyData = [];
     chartData.emissionsData = [];
 
-    if (impactChart) {
-        impactChart.update();
-    }
-
     updateCounters();
-    updateTemperature();
-    updateWaterLevel();
     updateWarningLevel();
-    updateHeatWaves();
 
     // Reset UI
     document.getElementById('startBtn').textContent = '▶ Start Simulation';
@@ -380,12 +386,16 @@ function resetSimulation() {
     document.getElementById('pauseBtn').textContent = '⏸ Pause';
 
     // Clear animations
-    document.getElementById('heatWaves').innerHTML = '';
-    document.getElementById('mercury').style.height = '0px';
-    document.getElementById('waterLevel').style.height = '0%';
+    const heatWaves = document.getElementById('heatWaves');
+    if (heatWaves) heatWaves.innerHTML = '';
+    const mercury = document.getElementById('mercury');
+    if (mercury) mercury.style.height = '0px';
+    const waterLevel = document.getElementById('waterLevel');
+    if (waterLevel) waterLevel.style.height = '0%';
     
     for (let i = 1; i <= 4; i++) {
-        document.getElementById(`warningBar${i}`).classList.remove('active');
+        const bar = document.getElementById(`warningBar${i}`);
+        if (bar) bar.classList.remove('active');
     }
 }
 
@@ -401,8 +411,13 @@ function updateSimulationSpeed() {
 
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize chart
-    initializeChart();
     initializeFactTicker();
+
+    // Initialize Chart.js if available and canvas exists
+    const chartCanvas = document.getElementById('impactChart');
+    if (chartCanvas && typeof Chart !== 'undefined') {
+        try { initializeChart(); } catch (e) { /* continue without chart */ }
+    }
 
     // Button event listeners
     document.getElementById('startBtn').addEventListener('click', startSimulation);
@@ -436,9 +451,4 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Performance optimization: Update chart less frequently at higher speeds
-setInterval(() => {
-    if (simulationState.isRunning && simulationSpeed <= 1) {
-        updateChart();
-    }
-}, 1000);
+

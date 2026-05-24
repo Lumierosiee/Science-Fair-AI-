@@ -45,31 +45,28 @@ let chartUpdateAccumulator = 0;
 const CHART_UPDATE_INTERVAL = 0.5; // seconds
 
 function updateChart() {
-    const t = Math.floor(simulationState.time);
-    if (chartData.labels.length === 0 || chartData.labels[chartData.labels.length - 1] !== t) {
-        chartData.labels.push(t);
-        chartData.energyData.push(simulationState.energy);
-        chartData.emissionsData.push(simulationState.emissions);
-        chartData.tempData.push(simulationState.temperature);
-        chartData.warningData.push(simulationState.warningLevel);
-        if (chartData.labels.length > 120) {
-            chartData.labels.shift();
-            chartData.energyData.shift();
-            chartData.emissionsData.shift();
-            chartData.tempData.shift();
-            chartData.warningData.shift();
-        }
+    const timeLabel = simulationState.time.toFixed(1);
+    chartData.labels.push(timeLabel);
+    chartData.energyData.push(simulationState.energy);
+    chartData.emissionsData.push(simulationState.emissions);
+    chartData.tempData.push(simulationState.temperature);
+    chartData.warningData.push(simulationState.warningLevel);
+
+    if (chartData.labels.length > 120) {
+        chartData.labels.shift();
+        chartData.energyData.shift();
+        chartData.emissionsData.shift();
+        chartData.tempData.shift();
+        chartData.warningData.shift();
     }
 
-    if (impactChart) {
+    if (impactChart && impactChart.data && impactChart.data.datasets) {
         try {
             impactChart.data.labels = chartData.labels.slice();
-            if (impactChart.data.datasets && impactChart.data.datasets.length >= 4) {
-                impactChart.data.datasets[0].data = chartData.energyData.slice();
-                impactChart.data.datasets[1].data = chartData.emissionsData.slice();
-                impactChart.data.datasets[2].data = chartData.tempData.slice();
-                impactChart.data.datasets[3].data = chartData.warningData.slice();
-            }
+            impactChart.data.datasets[0].data = chartData.energyData.slice();
+            impactChart.data.datasets[1].data = chartData.emissionsData.slice();
+            impactChart.data.datasets[2].data = chartData.tempData.slice();
+            impactChart.data.datasets[3].data = chartData.warningData.slice();
             impactChart.update({ duration: Math.max(200, 600 / simulationSpeed), easing: 'easeOutQuad' });
         } catch (e) {
             // Ignore chart update errors to avoid breaking the simulation
@@ -369,43 +366,54 @@ function setSimulationPaused(paused) {
 // Simulation Loop
 // ===========================
 
-function simulationTick() {
-    if (!simulationState.isRunning) {
-        animationFrameId = requestAnimationFrame(simulationTick);
-        return;
+function startLoop() {
+    if (animationFrameId !== null) return;
+    lastTimestamp = null;
+    animationFrameId = requestAnimationFrame(loopTick);
+}
+
+function stopLoop() {
+    if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+    }
+    lastTimestamp = null;
+}
+
+function loopTick(timestamp) {
+    if (lastTimestamp === null) {
+        lastTimestamp = timestamp;
     }
 
-    // Increase energy consumption and cap at the maximum AI training value
-    const deltaTime = 0.016 * simulationSpeed; // ~60fps
-    simulationState.energy = Math.min(simulationState.energy + energyRate * deltaTime, MAX_ENERGY_KWH);
+    const deltaTime = (timestamp - lastTimestamp) / 1000;
+    lastTimestamp = timestamp;
 
-    // Calculate emissions (metric tons CO2) and cap at the expected AI training total
+    if (simulationState.isRunning) {
+        updateSimulation(deltaTime);
+    }
+
+    animationFrameId = requestAnimationFrame(loopTick);
+}
+
+function updateSimulation(deltaTime) {
+    const scaledDelta = deltaTime * simulationSpeed;
+    if (scaledDelta <= 0) return;
+
+    simulationState.time += scaledDelta;
+    simulationState.energy = Math.min(simulationState.energy + energyRate * scaledDelta, MAX_ENERGY_KWH);
     simulationState.emissions = Math.min((simulationState.energy * carbonIntensity) / 1000, MAX_EMISSIONS_TONS);
 
-    // Increment time
-    simulationState.time += deltaTime;
-
-    // Update all UI elements
-    updateCounters();
+    updateTemperature();
     updateWarningLevel();
+    updateHeatWaves();
+    updateWaterLevel();
+    updateCounters();
 
-    // Update visualizations if present
-    try {
-        updateHeatWaves();
-        updateTemperature();
-        updateWaterLevel();
-    } catch (e) {
-        // Defensive: do not break the loop if visuals are missing
-    }
-
-    // Update chart on a stable interval so the live graph animates smoothly
-    chartUpdateAccumulator += deltaTime;
+    chartUpdateAccumulator += scaledDelta;
     if (chartUpdateAccumulator >= CHART_UPDATE_INTERVAL) {
         updateChart();
-        chartUpdateAccumulator = 0;
+        chartUpdateAccumulator -= CHART_UPDATE_INTERVAL;
     }
-
-    animationFrameId = requestAnimationFrame(simulationTick);
 }
 
 // ===========================
@@ -413,12 +421,22 @@ function simulationTick() {
 // ===========================
 
 function startSimulation() {
+    if (simulationState.isRunning) return;
     simulationState.isRunning = true;
     simulationState.isPaused = false;
     setSimulationPaused(false);
     document.getElementById('startBtn').textContent = '▶ Running';
     document.getElementById('startBtn').style.opacity = '0.5';
     document.getElementById('pauseBtn').textContent = '⏸ Pause';
+    startLoop();
+}
+
+function togglePauseResume() {
+    if (simulationState.isRunning) {
+        pauseSimulation();
+    } else if (simulationState.isPaused) {
+        resumeSimulation();
+    }
 }
 
 function pauseSimulation() {
@@ -426,9 +444,20 @@ function pauseSimulation() {
     simulationState.isPaused = true;
     setSimulationPaused(true);
     document.getElementById('pauseBtn').textContent = '▶ Resume';
+    stopLoop();
+}
+
+function resumeSimulation() {
+    simulationState.isRunning = true;
+    simulationState.isPaused = false;
+    setSimulationPaused(false);
+    document.getElementById('pauseBtn').textContent = '⏸ Pause';
+    startLoop();
 }
 
 function resetSimulation() {
+    stopLoop();
+
     simulationState = {
         isRunning: false,
         isPaused: false,
@@ -505,14 +534,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     document.getElementById('startBtn').addEventListener('click', startSimulation);
-    document.getElementById('pauseBtn').addEventListener('click', pauseSimulation);
+    document.getElementById('pauseBtn').addEventListener('click', togglePauseResume);
     document.getElementById('resetBtn').addEventListener('click', resetSimulation);
 
     // Speed slider
     document.getElementById('speedSlider').addEventListener('input', updateSimulationSpeed);
 
-    // Start animation loop
-    simulationTick();
+    // Initialize loop so it can start/stop cleanly
+    startLoop();
 
     // Initial UI update
     updateCounters();

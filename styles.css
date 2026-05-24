@@ -369,6 +369,18 @@ canvas {
     max-width: 100%;
 }
 
+.simulation-paused .heat-wave,
+.simulation-paused .smoke,
+.simulation-paused .ice,
+.simulation-paused .building,
+.simulation-paused .mercury,
+.simulation-paused .water-level,
+.simulation-paused .warning-bars .bar,
+.simulation-paused .temperature-section,
+.simulation-paused .chart-container canvas {
+    animation-play-state: paused !important;
+}
+
 .comparison-section {
     margin-bottom: 40px;
     background: rgba(0, 212, 255, 0.05);

@@ -40,49 +40,16 @@
                 </div>
             </section>
 
-            <!-- Live Graph -->
-            <section class="graph-section">
-                <h2>Live Energy & Emissions Graph</h2>
-                <div class="chart-container">
-                    <canvas id="impactChart" aria-label="Live energy and emissions chart" role="img"></canvas>
-                </div>
-            </section>
-
             <!-- Environmental Visualization -->
             <section class="visualization-section">
                 <h2>🌡️ Environmental Impact Visualization</h2>
                 <div class="visual-grid">
-                    <div class="data-center-container">
-                        <div class="server-rack">
-                            <!-- Server rack with stacked servers -->
-                            <div class="server-row">
-                                <div class="server"></div>
-                                <div class="server-lights">
-                                    <div class="led-light led-green"></div>
-                                    <div class="led-light led-blue"></div>
-                                </div>
-                            </div>
-                            <div class="server-row">
-                                <div class="server"></div>
-                                <div class="server-lights">
-                                    <div class="led-light led-green"></div>
-                                    <div class="led-light led-blue"></div>
-                                </div>
-                            </div>
-                            <div class="server-row">
-                                <div class="server"></div>
-                                <div class="server-lights">
-                                    <div class="led-light led-green"></div>
-                                    <div class="led-light led-blue"></div>
-                                </div>
-                            </div>
-                            <div class="server-row">
-                                <div class="server"></div>
-                                <div class="server-lights">
-                                    <div class="led-light led-green"></div>
-                                    <div class="led-light led-blue"></div>
-                                </div>
-                            </div>
+                    <div class="data-center">
+                        <div class="building left-building" aria-hidden="true">
+                            <div class="windows"></div>
+                        </div>
+                        <div class="building right-building" aria-hidden="true">
+                            <div class="windows"></div>
                         </div>
                         <div id="heatWaves" class="heat-waves"></div>
                         <div class="smoke-container" aria-hidden="true">
@@ -95,25 +62,11 @@
                     </div>
 
                     <div class="temperature-section">
-                        <!-- Y-axis labels on LEFT side -->
-                        <div class="temp-labels-left">
-                            <div class="temp-label">5°C</div>
-                            <div class="temp-label">4°C</div>
-                            <div class="temp-label">3°C</div>
-                            <div class="temp-label">2°C</div>
-                            <div class="temp-label">1°C</div>
-                            <div class="temp-label">0°C</div>
+                        <div class="thermometer" aria-hidden="true">
+                            <div class="temp-scale"></div>
+                            <div id="mercury" class="mercury"></div>
                         </div>
-                        
-                        <!-- Thermometer Glass Container -->
-                        <div class="thermometer-container">
-                            <div class="thermometer-glass">
-                                <div id="mercury" class="mercury-fill"></div>
-                            </div>
-                        </div>
-                        
-                        <!-- Temperature Display Below -->
-                        <div id="tempValue" class="temp-value-display">0.00°C</div>
+                        <div id="tempValue" class="temp-value">0.00°C</div>
                     </div>
 
                     <div class="ice-section">
@@ -157,6 +110,14 @@
                     <div class="counter-display" id="ratioCounter">0.0</div>
                     <p class="unit">kg CO₂ per kWh</p>
                     <p class="description">Carbon intensity of energy</p>
+                </div>
+            </section>
+
+            <!-- Live Energy & Emissions Graph -->
+            <section class="graph-section">
+                <h2>Live Energy & Emissions Graph</h2>
+                <div class="chart-container">
+                    <canvas id="impactChart" aria-label="Live energy and emissions graph" role="img"></canvas>
                 </div>
             </section>
 

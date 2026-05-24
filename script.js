@@ -25,13 +25,8 @@ const energyRate = 5;
 // Fossil fuels: 0.8 kg CO2/kWh
 const carbonIntensity = 0.4; // kg CO2 per kWh
 
-// Chart instance
-let impactChart = null;
-const chartData = {
-    labels: [],
-    energyData: [],
-    emissionsData: []
-};
+const MAX_ENERGY_KWH = 1287000;
+const MAX_EMISSIONS_TONS = 514.8;
 
 const rotatingFactMessages = [
     'Carbon Emissions Increasing',
@@ -43,30 +38,53 @@ const rotatingFactMessages = [
 
 let factIndex = 0;
 
+// Minimal chart/data placeholders for docs version
+let chartData = { labels: [], energyData: [], emissionsData: [], tempData: [], warningData: [] };
+let impactChart = null;
+let chartUpdateAccumulator = 0;
+const CHART_UPDATE_INTERVAL = 0.5; // seconds
+
+function updateChart() {
+    const t = Math.floor(simulationState.time);
+    if (chartData.labels.length === 0 || chartData.labels[chartData.labels.length - 1] !== t) {
+        chartData.labels.push(t);
+        chartData.energyData.push(simulationState.energy);
+        chartData.emissionsData.push(simulationState.emissions);
+        chartData.tempData.push(simulationState.temperature);
+        chartData.warningData.push(simulationState.warningLevel);
+        if (chartData.labels.length > 120) {
+            chartData.labels.shift();
+            chartData.energyData.shift();
+            chartData.emissionsData.shift();
+            chartData.tempData.shift();
+            chartData.warningData.shift();
+        }
+    }
+
+    if (impactChart) {
+        try {
+            impactChart.data.labels = chartData.labels.slice();
+            if (impactChart.data.datasets && impactChart.data.datasets.length >= 4) {
+                impactChart.data.datasets[0].data = chartData.energyData.slice();
+                impactChart.data.datasets[1].data = chartData.emissionsData.slice();
+                impactChart.data.datasets[2].data = chartData.tempData.slice();
+                impactChart.data.datasets[3].data = chartData.warningData.slice();
+            }
+            impactChart.update({ duration: Math.max(200, 600 / simulationSpeed), easing: 'easeOutQuad' });
+        } catch (e) {
+            // Ignore chart update errors to avoid breaking the simulation
+        }
+    }
+}
+
 // ===========================
 // Chart Initialization
 // ===========================
 
 function initializeChart() {
-    // Wait for Chart.js to be available and for the canvas to exist.
-    if (typeof Chart === 'undefined') {
-        let retries = 0;
-        const retryInit = () => {
-            retries++;
-            if (typeof Chart !== 'undefined') return initializeChart();
-            if (retries < 10) setTimeout(retryInit, 500);
-        };
-        retryInit();
-        return;
-    }
-
-    const canvas = document.getElementById('impactChart');
-    if (!canvas) return;
-    const ctx = canvas.getContext && canvas.getContext('2d');
-    if (!ctx) return;
-
-    try {
-        impactChart = new Chart(ctx, {
+    const ctx = document.getElementById('impactChart').getContext('2d');
+    
+    impactChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: chartData.labels,
@@ -75,29 +93,57 @@ function initializeChart() {
                     label: 'Energy Consumption (kWh)',
                     data: chartData.energyData,
                     borderColor: '#ff8c42',
-                    backgroundColor: 'rgba(255, 140, 66, 0.1)',
+                    backgroundColor: 'rgba(255, 140, 66, 0.12)',
                     borderWidth: 3,
                     fill: true,
-                    tension: 0.4,
-                    pointRadius: 4,
+                    tension: 0.35,
+                    pointRadius: 3,
                     pointBackgroundColor: '#ff8c42',
                     pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
+                    pointBorderWidth: 1,
                     yAxisID: 'y'
                 },
                 {
                     label: 'Carbon Emissions (metric tons CO₂)',
                     data: chartData.emissionsData,
                     borderColor: '#ff6b6b',
-                    backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                    backgroundColor: 'rgba(255, 107, 107, 0.12)',
                     borderWidth: 3,
                     fill: true,
-                    tension: 0.4,
-                    pointRadius: 4,
+                    tension: 0.35,
+                    pointRadius: 3,
                     pointBackgroundColor: '#ff6b6b',
                     pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
+                    pointBorderWidth: 1,
                     yAxisID: 'y1'
+                },
+                {
+                    label: 'Temperature Increase (°C)',
+                    data: chartData.tempData,
+                    borderColor: '#7ae582',
+                    backgroundColor: 'rgba(122, 229, 130, 0.12)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.35,
+                    pointRadius: 3,
+                    pointBackgroundColor: '#7ae582',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 1,
+                    yAxisID: 'y2'
+                },
+                {
+                    label: 'Climate Warning Level',
+                    data: chartData.warningData,
+                    borderColor: '#ffc107',
+                    backgroundColor: 'rgba(255, 193, 7, 0.12)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.35,
+                    pointRadius: 3,
+                    pointBackgroundColor: '#ffc107',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 1,
+                    yAxisID: 'y3'
                 }
             ]
         },
@@ -122,23 +168,15 @@ function initializeChart() {
             },
             scales: {
                 x: {
-                    grid: {
-                        color: 'rgba(0, 212, 255, 0.1)'
-                    },
-                    ticks: {
-                        color: '#b0b8d4'
-                    }
+                    grid: { color: 'rgba(0, 212, 255, 0.1)' },
+                    ticks: { color: '#b0b8d4' }
                 },
                 y: {
                     type: 'linear',
                     display: true,
                     position: 'left',
-                    grid: {
-                        color: 'rgba(0, 212, 255, 0.1)'
-                    },
-                    ticks: {
-                        color: '#ff8c42'
-                    },
+                    grid: { color: 'rgba(0, 212, 255, 0.1)' },
+                    ticks: { color: '#ff8c42' },
                     title: {
                         display: true,
                         text: 'kWh',
@@ -150,18 +188,44 @@ function initializeChart() {
                     type: 'linear',
                     display: true,
                     position: 'right',
-                    grid: {
-                        drawOnChartArea: false
-                    },
-                    ticks: {
-                        color: '#ff6b6b'
-                    },
+                    grid: { drawOnChartArea: false },
+                    ticks: { color: '#ff6b6b' },
                     title: {
                         display: true,
                         text: 'Metric Tons CO₂',
                         color: '#ff6b6b',
                         font: { weight: 'bold' }
                     }
+                },
+                y2: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    grid: { drawOnChartArea: false },
+                    ticks: { color: '#7ae582' },
+                    title: {
+                        display: true,
+                        text: '°C',
+                        color: '#7ae582',
+                        font: { weight: 'bold' }
+                    },
+                    min: 0,
+                    max: 30
+                },
+                y3: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    grid: { drawOnChartArea: false },
+                    ticks: { color: '#ffc107' },
+                    title: {
+                        display: true,
+                        text: 'Warning Level',
+                        color: '#ffc107',
+                        font: { weight: 'bold' }
+                    },
+                    min: 0,
+                    max: 4
                 }
             }
         }
@@ -193,32 +257,13 @@ function updateCounters() {
     updateFactDescription();
 } 
 
-function updateChart() {
-    const timeLabel = `${simulationState.time}s`;
-    
-    chartData.labels.push(timeLabel);
-    chartData.energyData.push(simulationState.energy);
-    chartData.emissionsData.push(simulationState.emissions);
-
-    // Keep only last 30 data points for performance
-    if (chartData.labels.length > 30) {
-        chartData.labels.shift();
-        chartData.energyData.shift();
-        chartData.emissionsData.shift();
-    }
-
-    if (impactChart) {
-        impactChart.update('none'); // Update without animation
-    }
-}
-
 // ===========================
 // Animation Functions
 // ===========================
 
 function updateHeatWaves() {
     const heatWavesContainer = document.getElementById('heatWaves');
-    const dataCenter = document.querySelector('.building');
+    if (!heatWavesContainer) return;
     
     // Remove old heat waves
     heatWavesContainer.innerHTML = '';
@@ -267,6 +312,7 @@ function updateFactDescription() {
 function updateTemperature() {
     const mercury = document.getElementById('mercury');
     const tempValue = document.getElementById('tempValue');
+    if (!mercury || !tempValue) return;
     
     // Temperature increases with emissions
     // 1 metric ton CO2 = 0.05°C rise (simplified model)
@@ -292,24 +338,30 @@ function updateWaterLevel() {
 }
 
 function updateWarningLevel() {
-    // Determine warning level based on emissions
     let newLevel = 0;
-    
-    if (simulationState.emissions > 0.001) newLevel = 1;
-    if (simulationState.emissions > 0.005) newLevel = 2;
-    if (simulationState.emissions > 0.01) newLevel = 3;
-    if (simulationState.emissions > 0.02) newLevel = 4;
+    if (simulationState.emissions > 0.002) newLevel = 1;
+    if (simulationState.emissions > 0.02) newLevel = 2;
+    if (simulationState.emissions > 0.08) newLevel = 3;
+    if (simulationState.emissions > 0.2) newLevel = 4;
 
     simulationState.warningLevel = newLevel;
 
-    // Update warning bars
     for (let i = 1; i <= 4; i++) {
         const bar = document.getElementById(`warningBar${i}`);
+        if (!bar) continue;
         if (i <= newLevel) {
             bar.classList.add('active');
         } else {
             bar.classList.remove('active');
         }
+    }
+}
+
+function setSimulationPaused(paused) {
+    if (paused) {
+        document.body.classList.add('simulation-paused');
+    } else {
+        document.body.classList.remove('simulation-paused');
     }
 }
 
@@ -323,12 +375,12 @@ function simulationTick() {
         return;
     }
 
-    // Increase energy consumption
+    // Increase energy consumption and cap at the maximum AI training value
     const deltaTime = 0.016 * simulationSpeed; // ~60fps
-    simulationState.energy += energyRate * deltaTime;
-    
-    // Calculate emissions (metric tons CO2)
-    simulationState.emissions = (simulationState.energy * carbonIntensity) / 1000;
+    simulationState.energy = Math.min(simulationState.energy + energyRate * deltaTime, MAX_ENERGY_KWH);
+
+    // Calculate emissions (metric tons CO2) and cap at the expected AI training total
+    simulationState.emissions = Math.min((simulationState.energy * carbonIntensity) / 1000, MAX_EMISSIONS_TONS);
 
     // Increment time
     simulationState.time += deltaTime;
@@ -336,10 +388,22 @@ function simulationTick() {
     // Update all UI elements
     updateCounters();
     updateWarningLevel();
-    
-    // Ensure chart updates in real time while simulation runs
-    // (Call every tick so the visual graph follows the numeric counters)
-    updateChart();
+
+    // Update visualizations if present
+    try {
+        updateHeatWaves();
+        updateTemperature();
+        updateWaterLevel();
+    } catch (e) {
+        // Defensive: do not break the loop if visuals are missing
+    }
+
+    // Update chart on a stable interval so the live graph animates smoothly
+    chartUpdateAccumulator += deltaTime;
+    if (chartUpdateAccumulator >= CHART_UPDATE_INTERVAL) {
+        updateChart();
+        chartUpdateAccumulator = 0;
+    }
 
     animationFrameId = requestAnimationFrame(simulationTick);
 }
@@ -351,14 +415,17 @@ function simulationTick() {
 function startSimulation() {
     simulationState.isRunning = true;
     simulationState.isPaused = false;
+    setSimulationPaused(false);
     document.getElementById('startBtn').textContent = '▶ Running';
     document.getElementById('startBtn').style.opacity = '0.5';
     document.getElementById('pauseBtn').textContent = '⏸ Pause';
 }
 
 function pauseSimulation() {
-    simulationState.isRunning = !simulationState.isRunning;
-    document.getElementById('pauseBtn').textContent = simulationState.isRunning ? '⏸ Pause' : '▶ Resume';
+    simulationState.isRunning = false;
+    simulationState.isPaused = true;
+    setSimulationPaused(true);
+    document.getElementById('pauseBtn').textContent = '▶ Resume';
 }
 
 function resetSimulation() {
@@ -376,31 +443,42 @@ function resetSimulation() {
     chartData.labels = [];
     chartData.energyData = [];
     chartData.emissionsData = [];
-
-    if (impactChart) {
-        impactChart.update();
-    }
+    chartData.tempData = [];
+    chartData.warningData = [];
+    chartUpdateAccumulator = 0;
 
     updateCounters();
     updateWarningLevel();
+    resetChart();
 
-    // Reset UI
     document.getElementById('startBtn').textContent = '▶ Start Simulation';
     document.getElementById('startBtn').style.opacity = '1';
     document.getElementById('pauseBtn').textContent = '⏸ Pause';
 
-    // Clear animations
+    setSimulationPaused(true);
+
     const heatWaves = document.getElementById('heatWaves');
     if (heatWaves) heatWaves.innerHTML = '';
     const mercury = document.getElementById('mercury');
     if (mercury) mercury.style.height = '0px';
     const waterLevel = document.getElementById('waterLevel');
     if (waterLevel) waterLevel.style.height = '0%';
+    const tempValue = document.getElementById('tempValue');
+    if (tempValue) tempValue.textContent = '0.00°C';
     
     for (let i = 1; i <= 4; i++) {
         const bar = document.getElementById(`warningBar${i}`);
         if (bar) bar.classList.remove('active');
     }
+}
+
+function resetChart() {
+    if (!impactChart) return;
+    impactChart.data.labels = [];
+    impactChart.data.datasets.forEach((dataset) => {
+        dataset.data = [];
+    });
+    impactChart.update({ duration: 0 });
 }
 
 function updateSimulationSpeed() {
@@ -414,11 +492,18 @@ function updateSimulationSpeed() {
 // ===========================
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize chart
-    initializeChart();
     initializeFactTicker();
 
-    // Button event listeners
+    // Initialize Chart.js if available and canvas exists
+    const chartCanvas = document.getElementById('impactChart');
+    if (chartCanvas && typeof Chart !== 'undefined') {
+        try {
+            initializeChart();
+        } catch (error) {
+            console.warn('Chart initialization failed:', error);
+        }
+    }
+
     document.getElementById('startBtn').addEventListener('click', startSimulation);
     document.getElementById('pauseBtn').addEventListener('click', pauseSimulation);
     document.getElementById('resetBtn').addEventListener('click', resetSimulation);
@@ -450,9 +535,4 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Performance optimization: Update chart less frequently at higher speeds
-setInterval(() => {
-    if (simulationState.isRunning && simulationSpeed <= 1) {
-        updateChart();
-    }
-}, 1000);
+
